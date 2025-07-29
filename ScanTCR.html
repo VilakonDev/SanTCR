@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Barcode Scanner</title>
+  <style>
+    #interactive {
+      width: 100%;
+      height: auto;
+      overflow: hidden;
+    }
+    #scanner-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    #barcode-result {
+      text-align: center;
+      font-size: 1.5em;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scanner-container">
+  <div id="interactive" class="viewport"></div>
+  <div id="barcode-result">Scan a barcode...</div>
+</div>
+
+<!-- Load QuaggaJS -->
+<script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.js"></script>
+<script>
+  const resultBox = document.getElementById("barcode-result");
+
+  Quagga.init({
+    inputStream: {
+      type: "LiveStream",
+      constraints: {
+        width: 640,
+        height: 480,
+        facingMode: "environment" // Use back camera
+      },
+      target: document.querySelector('#interactive')
+    },
+    decoder: {
+      readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
+    }
+  }, function(err) {
+    if (err) {
+      console.error(err);
+      resultBox.innerText = "Error initializing scanner.";
+      return;
+    }
+    Quagga.start();
+  });
+
+  Quagga.onDetected(function(data) {
+    const code = data.codeResult.code;
+    resultBox.innerText = `Scanned Code: ${code}`;
+    // Optional: stop scanning after successful detection
+    Quagga.stop();
+  });
+</script>
+
+</body>
+</html>
